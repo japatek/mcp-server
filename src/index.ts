@@ -9,6 +9,8 @@ app.use(cors());
 
 const PORT = process.env.PORT || 8080;
 const NEXTJS_SERVICE_URL = process.env.NEXTJS_SERVICE_URL || "https://japatek.space";
+// 1. TAMBAHKAN VARIABEL SECRET
+const MCP_SECRET_KEY = process.env.MCP_SECRET_KEY || ""; 
 
 // Standard MCP Server initialization
 function createMcpServer() {
@@ -142,7 +144,13 @@ app.get("/mcp", async (req: Request, res: Response) => {
 
   // Validate token via Next.js internal Service
   try {
-    const authRes = await fetch(`${NEXTJS_SERVICE_URL}/api/verify-license?token=${token}`);
+    // 2. SISIPKAN HEADER RAHASIA DI SINI
+    const authRes = await fetch(`${NEXTJS_SERVICE_URL}/api/verify-license?token=${token}`, {
+      headers: {
+        "x-mcp-secret": MCP_SECRET_KEY, 
+      },
+    });
+    
     if (!authRes.ok) {
       res.status(403).send("Forbidden: Invalid or expired license key.");
       return;
